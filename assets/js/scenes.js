@@ -1,8 +1,8 @@
-import { skillGroups, projects, lanes } from './data.js';
+import { skillGroups, journey } from './data.js';
 import { register } from './loop.js';
 import { createHero } from './hero.js';
 import { createGalaxy } from './galaxy.js';
-import { createSpace } from './space.js';
+import { createPipeline } from './pipeline.js';
 
 function webglAvailable() {
   try {
@@ -13,7 +13,7 @@ function webglAvailable() {
   }
 }
 
-export function start({ hero, galaxy, space, tooltip, reduced, onSelectProject, onFocusCluster }) {
+export function start({ hero, galaxy, pipe, journeyState, tooltip, reduced, onFocusCluster }) {
   if (!webglAvailable()) throw new Error('WebGL not available');
 
   const h = createHero(hero, { reduced });
@@ -22,8 +22,8 @@ export function start({ hero, galaxy, space, tooltip, reduced, onSelectProject, 
   const g = createGalaxy(galaxy, skillGroups, { tooltip, reduced, onFocus: onFocusCluster });
   register(galaxy, g.tick);
 
-  const s = createSpace(space, projects, lanes, { tooltip, reduced, onSelect: onSelectProject });
-  register(space, s.tick);
+  const p = createPipeline(pipe, journey, journeyState, { reduced });
+  register(pipe, p.tick);
 
-  return { hero: h, galaxy: g, space: s };
+  return { hero: h, galaxy: g, pipeline: p };
 }

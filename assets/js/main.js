@@ -1,6 +1,7 @@
 import { profile, impact, skillGroups, experience, lanes, projects, education, languages, journey } from './data.js';
 import { register } from './loop.js';
 import { createSignal } from './signal.js';
+import { createProjectAnim } from './project-anims.js';
 
 const $ = (s, root = document) => root.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -61,15 +62,23 @@ $('#projectGrid').innerHTML = gridProjects.map((p, i) => {
   return `
   <article class="card reveal" data-id="${p.id}" data-lane="${p.lane}" style="--accent:${lane.color}; transition-delay:${(i % 3) * 80}ms" tabindex="0" aria-label="${esc(p.title)}">
     <div class="card-inner">
+      <div class="card-viz"><canvas data-anim="${p.id}" aria-hidden="true"></canvas><span class="viz-tag mono">concept animation</span></div>
       <div class="card-top"><span class="lane-tag">${esc(lane.label)}</span><span class="period">${esc(p.period)}</span></div>
       <h3>${esc(p.title)}</h3>
       <p class="card-sub">${esc(p.subtitle)}</p>
       ${p.metric ? `<div class="card-metric"><b>${esc(p.metric.display)}</b><span>${esc(p.metric.label)}</span></div>` : '<div class="card-metric"><b>Live</b><span>interactive Streamlit app</span></div>'}
       <ul class="bullets" style="--accent:${lane.color}">${p.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       <ul class="tech">${p.tech.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
+      <span class="card-link mono">see it in the journey ↑</span>
     </div>
   </article>`;
 }).join('');
+
+document.querySelectorAll('canvas[data-anim]').forEach((c) => {
+  const id = c.dataset.anim;
+  const tick = createProjectAnim(c, id, laneById[projects.find((p) => p.id === id).lane].color);
+  if (tick) register(c, (t) => tick(reduced ? 2 : t));
+});
 
 $('#eduCard').innerHTML = `
   <div class="edu-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></div>
@@ -88,8 +97,6 @@ $('#langCard').innerHTML = languages.map((l) => `
         <b>${esc(s.cefr)}</b></div>`).join('')}
   </div>`).join('') + '<p class="edu-meta mono" style="margin-top:14px">scale: A1 · A2 · B1 · B2 · C1 · C2 · native</p>';
 
-$('#journey').innerHTML = journey.map((j) => `
-  <li><div class="j-date">${esc(j.date)}</div><div class="j-title">${esc(j.title)}</div><div class="j-where">${esc(j.where)}</div></li>`).join('');
 
 const icons = {
   mail: '<path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/>',
@@ -110,40 +117,71 @@ $('#contactGrid').innerHTML = [
     : `<div class="contact-card glass">${inner}</div>`;
 }).join('');
 
-/* ---------- project detail panel ---------- */
-let currentId = 'visionary';
-function showDetail(id) {
-  const p = projects.find((x) => x.id === id);
-  if (!p) return;
-  currentId = id;
-  const lane = laneById[p.lane];
-  const panel = $('#spaceDetail');
-  panel.style.setProperty('--c', lane.color);
-  panel.innerHTML = `
-    <div class="sd-lane">${esc(lane.label)}${p.kind === 'work' ? ' · work experience' : ''}</div>
-    <h3 class="sd-title">${esc(p.title)}</h3>
-    <div class="sd-sub">${esc(p.subtitle)}</div>
-    <div class="sd-period">${esc(p.period)}</div>
-    <div class="sd-metric">${p.metric ? `<b>${esc(p.metric.display)}</b><span>${esc(p.metric.label)}</span>` : '<b>App</b><span>No headline metric reported; deployed as an interactive Streamlit app.</span>'}</div>
-    <div class="sd-detail"><ul class="bullets" style="--accent:${lane.color}">${p.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
-    <ul class="tech">${p.tech.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>
-    <div class="sd-nav"><button class="btn" data-step="-1">← Previous</button><button class="btn" data-step="1">Next →</button></div>`;
-  document.querySelectorAll('.card').forEach((c) => c.classList.toggle('active', c.dataset.id === id));
+/* ---------- journey pipeline: scroll position -> station ---------- */
+const pipe = $('#pipe');
+const journeyState = { s: 0 }; // 0..n-1, read by the 3D pipeline
+const N = journey.length;
+pipe.style.height = `${N * 75 + 25}vh`;
+$('#pipeTotal').textContent = String(N).padStart(2, '0');
+$('#pipeRail').innerHTML = journey.map((j, i) => `
+  <li><button data-i="${i}" style="--c:${j.color}" aria-label="${esc(j.date)}: ${esc(j.title)}"><i></i><span>${esc(j.date)} · ${esc(j.title)}</span></button></li>`).join('');
+
+function stationScrollY(i) {
+  const top = pipe.getBoundingClientRect().top + scrollY;
+  return top + (i / (N - 1)) * (pipe.offsetHeight - innerHeight);
 }
-showDetail(currentId);
-$('#spaceDetail').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-step]');
-  if (!b) return;
-  const i = projects.findIndex((p) => p.id === currentId);
-  const next = projects[(i + Number(b.dataset.step) + projects.length) % projects.length];
-  selectProject(next.id);
+function goToStation(i) {
+  scrollTo({ top: stationScrollY(i), behavior: reduced ? 'auto' : 'smooth' });
+}
+$('#pipeRail').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-i]');
+  if (b) goToStation(Number(b.dataset.i));
 });
 
-function selectProject(id, scroll = false) {
-  showDetail(id);
-  scenes?.space?.select(id);
-  if (scroll) $('#space').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+let shownStation = -1;
+function renderStation(i) {
+  if (i === shownStation) return;
+  shownStation = i;
+  const j = journey[i];
+  const card = $('#pipeCard');
+  card.classList.remove('show');
+  card.style.setProperty('--c', j.color);
+  card.innerHTML = `
+    <div class="pc-date mono">${esc(j.date)}</div>
+    <h3 class="pc-title">${esc(j.title)}</h3>
+    <div class="pc-sub">${esc(j.sub)}</div>
+    <p class="pc-text">${esc(j.text)}</p>
+    ${j.metric ? `<div class="pc-metric">${esc(j.metric)}</div>` : ''}
+    <p class="pc-scene mono">▸ scene: ${esc(j.scene)}</p>
+    ${j.project ? `<a class="pc-link mono" href="#projects" data-project="${j.project}">project details ↓</a>` : ''}
+    ${j.cta ? '<a class="btn btn-primary btn-sm pc-cta" href="#contact">Get in touch</a>' : ''}`;
+  void card.offsetWidth;
+  card.classList.add('show');
+  $('#pipeIndex').textContent = String(i + 1).padStart(2, '0');
+  document.querySelectorAll('#pipeRail button').forEach((b, k) => {
+    b.classList.toggle('on', k === i);
+    b.classList.toggle('past', k < i);
+  });
 }
+$('#pipeCard').addEventListener('click', (e) => {
+  const a = e.target.closest('[data-project]');
+  if (!a) return;
+  e.preventDefault();
+  const card = document.querySelector(`.card[data-id="${a.dataset.project}"]`);
+  card?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  card?.classList.add('flash');
+  setTimeout(() => card?.classList.remove('flash'), 1600);
+});
+
+function updatePipe() {
+  const r = pipe.getBoundingClientRect();
+  const p = Math.min(1, Math.max(0, -r.top / (pipe.offsetHeight - innerHeight)));
+  journeyState.s = p * (N - 1);
+  renderStation(Math.round(journeyState.s));
+}
+addEventListener('scroll', updatePipe, { passive: true });
+addEventListener('resize', updatePipe);
+updatePipe();
 
 /* ---------- project grid: filters, tilt, link to 3D ---------- */
 $('#projectFilters').addEventListener('click', (e) => {
@@ -164,13 +202,11 @@ document.querySelectorAll('.card').forEach((card) => {
       card.style.setProperty('--ry', `${(x - 0.5) * 10}deg`);
     }
   });
-  card.addEventListener('pointerenter', () => scenes?.space?.highlight(card.dataset.id));
   card.addEventListener('pointerleave', () => {
     card.style.setProperty('--rx', '0deg');
     card.style.setProperty('--ry', '0deg');
-    scenes?.space?.highlight(null);
   });
-  const open = () => selectProject(card.dataset.id, true);
+  const open = () => goToStation(journey.findIndex((j) => j.project === card.dataset.id));
   card.addEventListener('click', open);
   card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
 });
@@ -264,13 +300,12 @@ import('./scenes.js')
     scenes = m.start({
       hero: $('#heroCanvas'),
       galaxy: $('#galaxy'),
-      space: $('#space'),
+      pipe: $('#pipeCanvas'),
+      journeyState,
       tooltip: $('#tooltip'),
       reduced,
-      onSelectProject: (id) => showDetail(id),
       onFocusCluster: (i) => setLegend(i),
     });
-    scenes.space?.select(currentId);
   })
   .catch((err) => {
     console.warn('3D disabled:', err);

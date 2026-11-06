@@ -64,14 +64,14 @@ export const experience = [
   },
 ];
 
-// Domains used as depth lanes in the 3D project space.
+// Project domains, used for card colours and filters.
 export const lanes = [
   { id: 'ml', label: 'ML & Analytics', color: '#fbbf24' },
   { id: 'cv', label: 'Computer Vision', color: '#f472b6' },
   { id: 'llm', label: 'LLM & Agents', color: '#34d399' },
 ];
 
-// start/end are 'YYYY-MM'. kind 'work' appears in the 3D space but not in the project grid.
+// start/end are 'YYYY-MM'. kind 'work' entries are not shown in the project grid.
 export const projects = [
   {
     id: 'staffviz', title: 'StaffViz', subtitle: 'Autonomous HR AI Agent', lane: 'llm',
@@ -177,15 +177,40 @@ export const languages = [
   { name: 'Urdu', level: 'Native', skills: [{ label: 'Native speaker', cefr: 'Native', score: 7 }] },
 ];
 
+// Stations of the 3D journey pipeline, in order. `emblem` picks the 3D model built for that station,
+// `scene` describes what the model shows, `project` links to a project card.
 export const journey = [
-  { date: 'Nov 2020', title: 'Started B.Sc. Data Science', where: 'GIFT University' },
-  { date: 'Feb 2023', title: 'Airline tweet sentiment model', where: '88% accuracy' },
-  { date: 'May 2023', title: 'Age & gender detection app', where: 'PyTorch + Streamlit' },
-  { date: 'Sep 2023', title: 'Started VISIONARY', where: 'Smart city surveillance' },
-  { date: 'Sep 2024', title: 'Graduated', where: 'B.Sc. Data Science' },
-  { date: 'Dec 2024', title: 'Weapon detection system', where: '94% mAP' },
-  { date: 'Jan 2025', title: 'Joined ZeroBS', where: 'Data Scientist, remote' },
-  { date: 'Apr 2025', title: 'Enterprise RAG system', where: '92% answer accuracy' },
-  { date: 'Jul 2025', title: 'Intelligent ATS', where: '70% less screening work' },
-  { date: 'Sep 2025', title: 'StaffViz HR agent', where: '60% faster tickets' },
+  { date: 'Nov 2020', title: 'Started B.Sc. Data Science', sub: 'GIFT University · Gujranwala, Pakistan', emblem: 'books', color: '#22d3ee',
+    text: 'Began a Bachelor of Science in Data Science, running November 2020 to September 2024.',
+    scene: 'a stack of coursework orbited by sparks of curiosity' },
+  { date: 'Feb 2023', title: 'Sentiment Analysis on Tweets', sub: 'R · regression · machine learning', emblem: 'sentiment', color: '#fbbf24', project: 'sentiment',
+    text: '14,000 tweets about six major airlines cleaned, analysed and classified to surface each airline\'s main complaints.',
+    metric: '88% accuracy · 34% lift', scene: 'a cloud of tweets sorting itself into positive, neutral and negative clusters' },
+  { date: 'May 2023', title: 'Age & Gender Detection', sub: 'PyTorch · Streamlit', emblem: 'face', color: '#f472b6', project: 'agegender',
+    text: 'A PyTorch model that predicts age and gender from facial images, served as a Streamlit app with instant predictions.',
+    metric: 'Live interactive web app', scene: 'a face mesh being scanned, landmarks located and predictions rising' },
+  { date: 'Sep 2023', title: 'VISIONARY', sub: 'AI-powered smart city surveillance', emblem: 'camera', color: '#f472b6', project: 'visionary',
+    text: 'YOLO detectors for fire and smoke, potholes, wrong-way vehicles, waste and violence, plus an LSTM that spots accidents across frames, all in one real-time pipeline.',
+    metric: '95%+ reported performance', scene: 'a city camera sweeping the street while detectors box each incident' },
+  { date: 'Sep 2024', title: 'Graduated', sub: 'B.Sc. in Data Science · GIFT University', emblem: 'cap', color: '#22d3ee',
+    text: 'Completed the Bachelor of Science in Data Science.',
+    scene: 'a graduation cap in a shower of confetti' },
+  { date: 'Dec 2024', title: 'Smart Security System', sub: 'Real-time weapon detection', emblem: 'radar', color: '#f472b6', project: 'weapon',
+    text: 'A standalone YOLOv8 weapon detector served through FastAPI, with an alert notification pipeline.',
+    metric: '94% mAP', scene: 'a scanner sweeping the scene, locking onto a threat and raising an alert' },
+  { date: 'Jan 2025', title: 'Data Scientist at ZeroBS', sub: 'Kiel, Germany (remote) · Jan – Dec 2025', emblem: 'signal', color: '#a78bfa',
+    text: 'LSTM models for time series anomaly detection with the client, and a Flask admin dashboard, built with Domain-Driven Design.',
+    metric: '70% better data readability', scene: 'a live time series with an anomaly spike caught, above a dashboard' },
+  { date: 'Apr 2025', title: 'Enterprise RAG System', sub: 'Multi-source knowledge engine', emblem: 'rag', color: '#34d399', project: 'rag',
+    text: 'PDFs, databases and APIs ingested into hybrid vector and keyword search, with re-ranking, query expansion and contextual compression.',
+    metric: '92% answer accuracy', scene: 'documents chunked into a vector lattice; the best matches beam into an answer' },
+  { date: 'Jul 2025', title: 'Intelligent ATS', sub: 'AI-powered resume screening', emblem: 'ats', color: '#34d399', project: 'ats',
+    text: 'OpenAI embeddings and vector search score, rank and explain how well each candidate fits a job.',
+    metric: '70% less screening workload', scene: 'resumes re-ranking themselves against a job description' },
+  { date: 'Sep 2025', title: 'StaffViz', sub: 'Autonomous HR AI agent', emblem: 'agent', color: '#34d399', project: 'staffviz',
+    text: 'An agentic HR assistant (team project) that browses the web, answers policy questions and manages leave through LangChain tool use.',
+    metric: '60% faster HR tickets · 200+ employees', scene: 'an agent core dispatching requests to its tools and back' },
+  { date: 'Today', title: 'Based in Nice, France', sub: 'Data Scientist · ML Engineer · Computer Vision Engineer', emblem: 'beacon', color: '#22d3ee',
+    text: 'The pipeline keeps running. The next station could be your team.',
+    scene: 'a beacon marking where the journey is now', cta: true },
 ];

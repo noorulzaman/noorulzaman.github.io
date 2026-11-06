@@ -34,6 +34,7 @@
         <li><a href="#about">About</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#experience">Experience</a></li>
+        <li><a href="#journey">Journey</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#education">Education</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -114,19 +115,29 @@
       <div class="container" id="xpList"></div>
     </section>
 
+    <!-- JOURNEY PIPELINE -->
+    <section class="section journey-sec" id="journey">
+      <div class="container reveal">
+        <p class="kicker mono">04 / Journey</p>
+        <h2>The pipeline <span class="grad">so far</span></h2>
+        <p class="section-lede">Scroll to ride the pipeline. Every station is a milestone, and each 3D model shows what that project actually does.</p>
+      </div>
+      <div class="pipe" id="pipe">
+        <div class="pipe-sticky">
+          <div class="pipe-canvas" id="pipeCanvas"></div>
+          <div class="pipe-card glass" id="pipeCard" aria-live="polite"></div>
+          <ol class="pipe-rail" id="pipeRail" aria-label="Journey stations"></ol>
+          <div class="pipe-count mono"><span id="pipeIndex">01</span> / <span id="pipeTotal">11</span></div>
+        </div>
+      </div>
+    </section>
+
     <!-- PROJECTS -->
     <section class="section" id="projects">
       <div class="container reveal">
-        <p class="kicker mono">04 / Projects</p>
-        <h2>Project space, <span class="grad">in three dimensions</span></h2>
-        <p class="section-lede">Each sphere is a project. Left to right is time, depth is the domain, height is its headline result. Floor bars show how long it ran. Click a sphere to inspect it.</p>
-      </div>
-      <div class="container space-wrap reveal">
-        <div class="viz space glass" id="space">
-          <p class="viz-hint mono">drag to orbit · click a sphere</p>
-          <p class="viz-fallback">3D view unavailable, all projects are listed below.</p>
-        </div>
-        <aside class="space-detail glass" id="spaceDetail" aria-live="polite"></aside>
+        <p class="kicker mono">05 / Projects</p>
+        <h2>Projects, <span class="grad">in motion</span></h2>
+        <p class="section-lede">Each card animates the project's core idea: agents calling tools, embeddings being ranked, detectors boxing incidents.</p>
       </div>
       <div class="container">
         <div class="filters" id="projectFilters" role="toolbar" aria-label="Filter projects"></div>
@@ -137,23 +148,19 @@
     <!-- EDUCATION -->
     <section class="section" id="education">
       <div class="container reveal">
-        <p class="kicker mono">05 / Education &amp; Languages</p>
+        <p class="kicker mono">06 / Education &amp; Languages</p>
         <h2>Foundations</h2>
       </div>
       <div class="container edu-grid">
         <article class="edu glass reveal" id="eduCard"></article>
         <article class="langs glass reveal" id="langCard"></article>
       </div>
-      <div class="container reveal">
-        <h3 class="journey-title mono">// journey</h3>
-        <ol class="journey" id="journey"></ol>
-      </div>
     </section>
 
     <!-- CONTACT -->
     <section class="section contact" id="contact">
       <div class="container reveal contact-inner">
-        <p class="kicker mono">06 / Contact</p>
+        <p class="kicker mono">07 / Contact</p>
         <h2>Let's build something <span class="grad">intelligent.</span></h2>
         <p class="section-lede">Open a conversation about data science, computer vision or LLM work.</p>
         <div class="contact-grid" id="contactGrid"></div>
